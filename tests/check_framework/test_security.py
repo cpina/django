@@ -1,8 +1,10 @@
 from django.conf import settings
+from django.contrib import admin
 from django.core.checks.security import base, csrf, sessions
 from django.core.management.utils import get_random_secret_key
 from django.test import SimpleTestCase
 from django.test.utils import override_settings
+from django.urls import path, URLResolver
 
 
 class CheckSessionCookieSecureTest(SimpleTestCase):
@@ -471,3 +473,27 @@ class CheckReferrerPolicyTest(SimpleTestCase):
     )
     def test_with_invalid_referrer_policy(self):
         self.assertEqual(base.check_referrer_policy(None), [base.E023])
+
+
+class CheckAdminRouteDjangoAdminTest(SimpleTestCase):
+    class UrlConfWithoutAdminPath:
+        urlpatterns = [path('admin-somehwere/', admin.site.urls), ]
+
+    class UrlConfWithAdminPath:
+        urlpatterns = [path('admin', admin.site.urls), ]
+
+    class UrlConfWithAdminPathSlash:
+        urlpatterns = [path('admin/', admin.site.urls), ]
+
+    @override_settings(ROOT_URLCONF=UrlConfWithoutAdminPath)
+    def test_admin_not_routed_to_django_admin(self):
+        self.assertEqual(base.admin_path_routed_to_django_admin(None), [])
+
+    @override_settings(ROOT_URLCONF=UrlConfWithAdminPath)
+    def test_admin_routed_to_django_admin(self):
+        self.assertEqual(base.admin_path_routed_to_django_admin(None), [base.W023])
+
+    @override_settings(ROOT_URLCONF=UrlConfWithAdminPathSlash)
+    def test_admin_routed_to_django_admin(self):
+        self.assertEqual(base.admin_path_routed_to_django_admin(None), [base.W023])
+

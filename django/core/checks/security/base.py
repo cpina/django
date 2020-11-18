@@ -113,6 +113,12 @@ W022 = Warning(
     id='security.W022',
 )
 
+W023 = Warning(
+   "/admin or /admin/ is routed to 'django.contrib.admin'. This is not recommended ",
+   "consider using a different URL for the 'admin' site.",
+   id='security.W023')
+
+
 E023 = Error(
     'You have set the SECURE_REFERRER_POLICY setting to an invalid value.',
     hint='Valid values are: {}.'.format(', '.join(sorted(REFERRER_POLICY_VALUES))),
@@ -245,3 +251,27 @@ def check_default_hashing_algorithm(app_configs, **kwargs):
     if settings.DEFAULT_HASHING_ALGORITHM not in {'sha1', 'sha256'}:
         return [E100]
     return []
+
+
+def admin_routes_to_django_admin():
+    from django.urls.exceptions import Resolver404
+    from django.urls import resolve
+
+    admin_urls_blacklisted = ['/admin/', '/admin']
+
+    for admin_url in admin_urls_blacklisted:
+        try:
+            return resolve(admin_url)._func_path == 'django.contrib.admin.sites.index'
+        except Resolver404:
+            pass
+
+    return False
+
+
+@register(Tags.security, deploy=True)
+def admin_path_routed_to_django_admin(app_configs, **kwargs):
+    if admin_routes_to_django_admin():
+        return [W023]
+
+    return []
+
