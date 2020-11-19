@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
+from django.contrib import admin
 
 from .. import Error, Tags, Warning, register
 
@@ -261,7 +262,8 @@ def admin_routes_to_django_admin():
 
     for admin_url in admin_urls_blacklisted:
         try:
-            return resolve(admin_url)._func_path == 'django.contrib.admin.sites.index'
+            # return resolve(admin_url)._func_path == 'django.contrib.admin.sites.index'
+            return resolve(admin_url).func.admin_site == admin.site
         except Resolver404:
             pass
 
