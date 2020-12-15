@@ -161,7 +161,8 @@ class CreateViewTests(TestCase):
 
     def test_create_without_redirect(self):
         msg = (
-            'No URL to redirect to.  Either provide a url or define a '
+            'NaiveAuthorCreate has no URL to redirect to.  Provide success_url '
+            'or define get_success_url method on the View or define '
             'get_absolute_url method on the Model.'
         )
         with self.assertRaisesMessage(ImproperlyConfigured, msg):
@@ -305,8 +306,9 @@ class UpdateViewTests(TestCase):
 
     def test_update_without_redirect(self):
         msg = (
-            'No URL to redirect to.  Either provide a url or define a '
-            'get_absolute_url method on the Model.'
+            'NaiveAuthorUpdate has no URL to redirect to.  Provide success_url or '
+            'define get_success_url method on the View or define get_absolute_url '
+            'method on the Model.'
         )
         with self.assertRaisesMessage(ImproperlyConfigured, msg):
             self.client.post(
@@ -391,6 +393,7 @@ class DeleteViewTests(TestCase):
         self.assertQuerysetEqual(Author.objects.all(), [])
 
     def test_delete_without_redirect(self):
-        msg = 'No URL to redirect to. Provide a success_url.'
+        msg = 'NaiveAuthorDelete has no URL to redirect to.  Provide success_url ' \
+              'or define get_success_url method.'
         with self.assertRaisesMessage(ImproperlyConfigured, msg):
             self.client.post('/edit/author/%d/delete/naive/' % self.author.pk)

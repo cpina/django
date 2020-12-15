@@ -49,7 +49,10 @@ class FormMixin(ContextMixin):
     def get_success_url(self):
         """Return the URL to redirect to after processing a valid form."""
         if not self.success_url:
-            raise ImproperlyConfigured("No URL to redirect to. Provide a success_url.")
+            raise ImproperlyConfigured("%s has no URL to redirect to.  "
+                                       "Provide success_url or define "
+                                       "get_success_url method." %
+                                       self.__class__.__name__)
         return str(self.success_url)  # success_url may be lazy
 
     def form_valid(self, form):
@@ -116,8 +119,10 @@ class ModelFormMixin(FormMixin, SingleObjectMixin):
                 url = self.object.get_absolute_url()
             except AttributeError:
                 raise ImproperlyConfigured(
-                    "No URL to redirect to.  Either provide a url or define"
-                    " a get_absolute_url method on the Model.")
+                    "%s has no URL to redirect to.  Provide "
+                    "success_url or define get_success_url method on "
+                    "the View or define get_absolute_url "
+                    "method on the Model." % self.__class__.__name__)
         return url
 
     def form_valid(self, form):
@@ -222,7 +227,8 @@ class DeletionMixin:
             return self.success_url.format(**self.object.__dict__)
         else:
             raise ImproperlyConfigured(
-                "No URL to redirect to. Provide a success_url.")
+                "%s has no URL to redirect to.  Provide success_url or define "
+                "get_success_url method." % self.__class__.__name__)
 
 
 class BaseDeleteView(DeletionMixin, BaseDetailView):

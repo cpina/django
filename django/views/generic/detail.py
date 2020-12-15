@@ -43,8 +43,10 @@ class SingleObjectMixin(ContextMixin):
         # If none of those are defined, it's an error.
         if pk is None and slug is None:
             raise AttributeError(
-                "Generic detail view %s must be called with either an object "
-                "pk or a slug in the URLconf." % self.__class__.__name__
+                "Generic detail view %s must be called with an object "
+                "pk or slug in the URLconf or define a custom get_object method.  "
+                "If pk or slug does not have the default name in the URL use "
+                "pk_url_kwarg or slug_url_kwarg." % self.__class__.__name__
             )
 
         try:

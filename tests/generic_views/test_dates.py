@@ -743,8 +743,10 @@ class DateDetailViewTests(TestDataMixin, TestCase):
 
     def test_invalid_url(self):
         msg = (
-            'Generic detail view BookDetail must be called with either an '
-            'object pk or a slug in the URLconf.'
+            'Generic detail view BookDetail must be called with an object pk or slug '
+            'in the URLconf or define a custom get_object method.  '
+            'If pk or slug does not have the default name in the URL use '
+            'pk_url_kwarg or slug_url_kwarg.'
         )
         with self.assertRaisesMessage(AttributeError, msg):
             self.client.get("/dates/books/2008/oct/01/nopk/")
